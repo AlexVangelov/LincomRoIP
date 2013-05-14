@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *.a
 *.class
 *.dll
@@ -19,3 +20,25 @@
 .svn
 _svn
 svn-commit*.tmp
+=======
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Eclipse project files
+.classpath
+.project
+>>>>>>> c56ea2afb0948d47f98b8daefe4e7dae3aaeab96
