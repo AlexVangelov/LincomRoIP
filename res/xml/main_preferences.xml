@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference android:defaultValue="78.90.112.221" android:key="sip_server" android:title="SIP Server"/>
+    <EditTextPreference android:defaultValue="sp" android:key="name" android:title="Username"/>
+    <EditTextPreference android:key="password" android:title="Password" android:inputType="textPassword"/>
+</PreferenceScreen>

@@ -1,0 +1,124 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="2sp" >
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:id="@+id/txtContact"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="text"/>
+
+        <Button
+            android:id="@+id/btnConnect"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:onClick="doConnect"
+            android:text="@string/connect" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayout1"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/lcd_panel" >
+
+        <TextView
+            android:id="@+id/textChan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingLeft="20sp"
+            android:text="@string/empty_chan"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="90sp"
+            android:width="146sp" />
+
+        <Button
+            android:id="@+id/btnWatt"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="changeWatt"
+            android:text="@string/watt_25" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayout2"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="2sp" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <ImageButton
+                android:id="@+id/btnUp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/chan_up"
+                android:minWidth="50sp"
+                android:onClick="chanUp"
+                android:src="@android:drawable/arrow_up_float" />
+
+            <ImageButton
+                android:id="@+id/btnDown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/chan_down"
+                android:minWidth="50sp"
+                android:onClick="chanDown"
+                android:src="@android:drawable/arrow_down_float" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textsql"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="10sp"
+                android:text="@string/squelch" />
+
+            <SeekBar
+                android:id="@+id/seekSql"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="10sp"
+                android:paddingRight="10sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btnPtt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/linearLayout3"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="@string/speak_now"
+        android:src="@android:drawable/ic_btn_speak_now" />
+
+</RelativeLayout>
