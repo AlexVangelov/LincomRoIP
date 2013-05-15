@@ -11,6 +11,10 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.util.Log;
 import android.view.Menu;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -45,27 +49,13 @@ public class MainActivity extends Activity {
         context = this;
         setContentView(R.layout.activity_main);
         txtContact = (TextView) findViewById(R.id.txtContact);
-        txtContact.setText("192.168.6.30");
+        txtContact.setText("");
         txtChan = (TextView) findViewById(R.id.textChan);
         btnConnect = (Button) findViewById(R.id.btnConnect);
         btnWatt = (Button) findViewById(R.id.btnWatt);
         btnWatt.setText("--W");
         btnPtt = (ImageButton) findViewById(R.id.btnPtt);
-        h = new Handler() {
-	         public void handleMessage(Message msg) {
-	        	 int chan;
-	             Bundle b = msg.getData();
-	             String status = b.getString("callback_string");
-	             //Toast.makeText(context, status.substring(0,8), Toast.LENGTH_SHORT).show();
-	             if (status.length() > 14) {
-		             if (((String)status.substring(0,8)).equals("Channel:")) {
-			             chan = Integer.parseInt(status.substring(8, 11))-233;
-			             txtChan.setText(String.format("%02d", chan));
-			             btnWatt.setText(String.format("%sW", status.substring(12, 14)));
-		        	 } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
-	             } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
-	         }
-	     };
+        h = new CallbackHandler(context, txtChan, btnWatt);
         btnPtt.setOnTouchListener(new OnTouchListener() {
         	
 			@Override
@@ -160,6 +150,41 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.exit:
+        	exitApp();
+            return true;
+        case R.id.settings:
+        	Intent settingsActivity = new Intent(getBaseContext(),MainPreferences.class);
+        	startActivity(settingsActivity);
+        	return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+    }
+    
+    private void exitApp() {
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setMessage("Are you sure you want to exit?")
+    	       .setCancelable(false)
+    	       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+    	           public void onClick(DialogInterface dialog, int id) {
+    	        	   MainActivity.this.finish();
+    	           }
+    	       })
+    	       .setNegativeButton("No", new DialogInterface.OnClickListener() {
+    	           public void onClick(DialogInterface dialog, int id) {
+    	                dialog.cancel();
+    	           }
+    	       });
+    	builder.setIcon(R.drawable.ic_launcher);
+    	builder.setTitle(R.string.app_name);
+    	AlertDialog alert = builder.create();
+    	alert.show();
+    }
     
     public void doConnect(View v) {
     	if (connected == 0) {
@@ -214,13 +239,13 @@ public class MainActivity extends Activity {
     	//Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
     	Log.d("LincomRoIP","pagerCallback\n");
     }
-    
+
     public void SendLinCmd(String s) {
     	btnWatt.setText("--W");
 		txtChan.setText("--");
     	lincomroip.sendmsgLincomRoIP(current_call_id, s);
     }
-    
+
     public void callBack(String s) {
     	Log.d("LincomRoIP",s);
     	try {
@@ -254,4 +279,28 @@ public class MainActivity extends Activity {
             mBound = false;
         }
     };
+    
+    static class CallbackHandler extends Handler {
+    	TextView ctxtChan; 
+    	Button cbtnWatt;
+    	Context ccontext;
+    	CallbackHandler(Context ctxt, TextView chan, Button watt) {
+    		ccontext = ctxt;
+    		ctxtChan = chan;
+    		cbtnWatt = watt;
+        }
+    	
+    	@Override
+    	public void handleMessage(Message msg) {
+       	 int chan;
+            Bundle b = msg.getData();
+            String status = b.getString("callback_string");
+            //Toast.makeText(context, status.substring(0,8), Toast.LENGTH_SHORT).show();
+            if (((String)status.substring(0,8)).equals("Channel:")) {
+	             chan = Integer.parseInt(status.substring(8, 11))-233;
+	             ctxtChan.setText(String.format("%02d", chan));
+	             cbtnWatt.setText(String.format("%sW", status.substring(12, 14)));
+       	 } else Toast.makeText(ccontext, status, Toast.LENGTH_SHORT).show();
+        }
+    }
 }

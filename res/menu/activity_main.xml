@@ -1,5 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+<<<<<<< HEAD
     <item android:id="@+id/menu_settings"
         android:title="@string/menu_settings"
         android:orderInCategory="100" />
+=======
+    <item android:id="@+id/settings" android:title="@string/settings" android:icon="@android:drawable/ic_menu_manage"></item>
+    <item android:id="@+id/exit" android:title="@string/exit" android:icon="@android:drawable/ic_menu_close_clear_cancel"></item>
+>>>>>>> 35d3953b6e4a313efd8093865cbc3314438cd8eb
 </menu>
