@@ -5,10 +5,7 @@
 #define THIS_FILE	"LincomRoIP"
 
 static void callback_handler(char *s);
-<<<<<<< HEAD
 int sendmsgLincomRoIP(int call_id, char *s);
-=======
->>>>>>> 35d3953b6e4a313efd8093865cbc3314438cd8eb
 
 /* Callback called by the library upon receiving incoming call */
 static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id,
@@ -40,10 +37,7 @@ static void on_call_state(pjsua_call_id call_id, pjsip_event *e)
     PJ_LOG(3,(THIS_FILE, "Call %d state=%.*s", call_id,
 			 (int)ci.state_text.slen,
 			 ci.state_text.ptr));
-<<<<<<< HEAD
 		if (ci.state == PJSIP_INV_STATE_CONFIRMED) sendmsgLincomRoIP(call_id,"?");
-=======
->>>>>>> 35d3953b6e4a313efd8093865cbc3314438cd8eb
 }
 
 /* Callback called by the library when call's media state has changed */
@@ -57,10 +51,7 @@ static void on_call_media_state(pjsua_call_id call_id)
 	// When media is active, connect call to sound device.
 	pjsua_conf_connect(ci.conf_slot, 0);
 	pjsua_conf_connect(0, ci.conf_slot);
-<<<<<<< HEAD
 			//sendmsgLincomRoIP(call_id,"?");
-=======
->>>>>>> 35d3953b6e4a313efd8093865cbc3314438cd8eb
     }
 }
 
@@ -99,7 +90,7 @@ void showLog(int level, const char *data, int len)
     printlog("%s", data);
 }
 
-int initLincomRoIP() {
+int initLincomRoIP(char *registrar, char *user, char *passwd) {
    pjsua_acc_id acc_id;
    pj_status_t status;
    pjsua_transport_id transport_id = -1;
@@ -128,11 +119,9 @@ int initLincomRoIP() {
       log_cfg.console_level = 4;
       log_cfg.cb = &showLog;
 
-<<<<<<< HEAD
-      //cfg.stun_host = pj_str("stun.ekiga.net");
-=======
-      //cfg.stun_host = pj_str("stun.pjsip.org");
->>>>>>> 35d3953b6e4a313efd8093865cbc3314438cd8eb
+			cfg.stun_srv_cnt = 2;
+			cfg.stun_srv[0] = pj_str("stun.pjsip.org");
+      cfg.stun_srv[1] = pj_str("stun.voipbuster.com");
 
 			pjsua_media_config_default(&media_cfg);
 			media_cfg.ec_tail_len = 0;
@@ -165,18 +154,38 @@ int initLincomRoIP() {
    }
 
     /* Create local SIP account. */
-   {
+/*   {
       status = pjsua_acc_add_local(transport_id, PJ_TRUE, &acc_id);
       if (status != PJ_SUCCESS)  {
          printlog("pjsua_acc_add_local");    
          return -1;  
       }
-<<<<<<< HEAD
 			pjsua_acc_set_online_status(acc_id, PJ_TRUE);
-=======
->>>>>>> 35d3953b6e4a313efd8093865cbc3314438cd8eb
-   }
+   } */
 		//callback_handler((char *)"LincomRoIP initialized!");
+		// Register to SIP server by creating account
+	{
+		char sip_id[64];
+		char reg_uri[64];
+		pjsua_acc_config cfg;
+		pjsua_acc_config_default(&cfg);
+		pj_ansi_sprintf(sip_id, "sip:%s@%s",user,registrar);
+		cfg.id = pj_str(sip_id);
+		pj_ansi_sprintf(reg_uri, "sip:%s",registrar);
+		cfg.reg_uri = pj_str(reg_uri);
+		cfg.cred_count = 1;
+		cfg.cred_info[0].realm = pj_str("*");
+		cfg.cred_info[0].scheme = pj_str("digest");
+		cfg.cred_info[0].username = pj_str(user);
+		cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
+		cfg.cred_info[0].data = pj_str(passwd);
+		printlog(passwd);  
+		status = pjsua_acc_add(&cfg, PJ_TRUE, &acc_id);		
+		if (status != PJ_SUCCESS)  {
+			 printlog("pjsua_acc_add");    
+			 return -1;  
+		}
+	}
    return 0;
 }
 
@@ -194,11 +203,7 @@ int disconnectLincomRoIP() {
 
 int sendmsgLincomRoIP(int call_id, char *s) {
 	 char amsg[80];
-<<<<<<< HEAD
 	 pj_ansi_sprintf(amsg, "VCMD:%s",s);
-=======
-	 pj_ansi_sprintf(amsg, "AMSG:%s",s);
->>>>>>> 35d3953b6e4a313efd8093865cbc3314438cd8eb
    pj_str_t msg = pj_str(amsg);
    return pjsua_call_send_im( call_id, NULL, &msg, NULL, NULL);
 }

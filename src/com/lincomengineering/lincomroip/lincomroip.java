@@ -13,8 +13,8 @@
 package com.lincomengineering.lincomroip;
 
 public class lincomroip {
-  public static int initLincomRoIP() {
-    return lincomroipJNI.initLincomRoIP();
+  public static int initLincomRoIP(String registrar, String user, String passwd) {
+    return lincomroipJNI.initLincomRoIP(registrar, user, passwd);
   }
 
   public static int destroyLincomRoIP() {

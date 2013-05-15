@@ -13,7 +13,7 @@
 package com.lincomengineering.lincomroip;
 
 public class lincomroipJNI {
-  public final static native int initLincomRoIP();
+  public final static native int initLincomRoIP(String jarg1, String jarg2, String jarg3);
   public final static native int destroyLincomRoIP();
   public final static native int connectLincomRoIP(String jarg1);
   public final static native int disconnectLincomRoIP();

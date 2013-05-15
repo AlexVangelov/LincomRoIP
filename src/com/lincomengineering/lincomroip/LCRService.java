@@ -37,7 +37,7 @@ public class LCRService extends Service {
 	    	return;
 	    }
 	    Log.e("LincomRoIP", "Service Started.. ");
-	    lincomroip.initLincomRoIP();
+	    lincomroip.initLincomRoIP("","","");
 	}
 
 	@Override

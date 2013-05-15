@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
 import android.app.AlertDialog;
@@ -38,6 +40,7 @@ public class MainActivity extends Activity {
     private Context context;
     static Handler h;
     private int connected = 0;
+    SharedPreferences preferences;
 
     static {
         System.loadLibrary("lincomroip");
@@ -56,6 +59,7 @@ public class MainActivity extends Activity {
         btnWatt.setText("--W");
         btnPtt = (ImageButton) findViewById(R.id.btnPtt);
         h = new CallbackHandler(context, txtChan, btnWatt);
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
         btnPtt.setOnTouchListener(new OnTouchListener() {
         	
 			@Override
@@ -125,7 +129,11 @@ public class MainActivity extends Activity {
 //        Intent intent = new Intent(this, LCRService.class);
 //        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         //setEnv();
-        lincomroip.initLincomRoIP();
+        lincomroip.initLincomRoIP(
+        		preferences.getString("sip_server", "78.90.112.221"),
+        		preferences.getString("name", ""),
+        		preferences.getString("password", "")
+        );
     }
     
     @Override

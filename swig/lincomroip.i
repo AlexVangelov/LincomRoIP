@@ -2,14 +2,14 @@
 %module lincomroip
 
 %{
-int initLincomRoIP();
+int initLincomRoIP(char *registrar, char *user, char *passwd);
 int destroyLincomRoIP();
 int connectLincomRoIP(char *s);
 int disconnectLincomRoIP();
 int sendmsgLincomRoIP(int call_id, char *s);
 %}
 
-int initLincomRoIP();
+int initLincomRoIP(char *registrar, char *user, char *passwd);
 int destroyLincomRoIP();
 int connectLincomRoIP(char *s);
 int disconnectLincomRoIP();
