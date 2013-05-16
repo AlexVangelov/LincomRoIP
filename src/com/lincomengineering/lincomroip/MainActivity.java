@@ -52,13 +52,28 @@ public class MainActivity extends Activity {
         context = this;
         setContentView(R.layout.activity_main);
         txtContact = (TextView) findViewById(R.id.txtContact);
-        txtContact.setText("");
+        txtContact.setText("100@78.90.112.221");
         txtChan = (TextView) findViewById(R.id.textChan);
         btnConnect = (Button) findViewById(R.id.btnConnect);
         btnWatt = (Button) findViewById(R.id.btnWatt);
         btnWatt.setText("--W");
         btnPtt = (ImageButton) findViewById(R.id.btnPtt);
-        h = new CallbackHandler(context, txtChan, btnWatt);
+        //h = new CallbackHandler(context, txtChan, btnWatt);
+        h = new Handler() {
+        	           public void handleMessage(Message msg) {
+        	             int chan;
+        	               Bundle b = msg.getData();
+        	               String status = b.getString("callback_string");
+        	               //Toast.makeText(context, status.substring(0,8), Toast.LENGTH_SHORT).show();
+        	               if (status.length() > 14) {
+        	                 if (((String)status.substring(0,8)).equals("Channel:")) {
+        	                   chan = Integer.parseInt(status.substring(8, 11))-233;
+        	                   txtChan.setText(String.format("%02d", chan));
+        	                   btnWatt.setText(String.format("%sW", status.substring(12, 14)));
+        	               } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
+        	               } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
+        	           }
+        	       };
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         btnPtt.setOnTouchListener(new OnTouchListener() {
         	
@@ -303,12 +318,12 @@ public class MainActivity extends Activity {
        	 int chan;
             Bundle b = msg.getData();
             String status = b.getString("callback_string");
-            //Toast.makeText(context, status.substring(0,8), Toast.LENGTH_SHORT).show();
-            if (((String)status.substring(0,8)).equals("Channel:")) {
-	             chan = Integer.parseInt(status.substring(8, 11))-233;
-	             ctxtChan.setText(String.format("%02d", chan));
-	             cbtnWatt.setText(String.format("%sW", status.substring(12, 14)));
-       	 } else Toast.makeText(ccontext, status, Toast.LENGTH_SHORT).show();
+            Toast.makeText(ccontext, status.substring(0,8), Toast.LENGTH_SHORT).show();
+//            if (((String)status.substring(0,8)).equals("Channel:")) {
+//	             chan = Integer.parseInt(status.substring(8, 11))-233;
+//	             ctxtChan.setText(String.format("%02d", chan));
+//	             cbtnWatt.setText(String.format("%sW", status.substring(12, 14)));
+//       	 } else Toast.makeText(ccontext, status, Toast.LENGTH_SHORT).show();
         }
     }
 }
