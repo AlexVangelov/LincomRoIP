@@ -22,8 +22,6 @@ svn-commit*.tmp
 *.rej
 *.working
 .hg
-# built application files
-*.ap_
 
 # files for the dex VM
 *.dex
@@ -33,6 +31,10 @@ svn-commit*.tmp
 
 # generated files
 gen/
+bin/res/
+bin/dexedLibs/
+*.ap_
+*.cache
 
 # Local configuration file (sdk path, etc)
 local.properties
