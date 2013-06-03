@@ -1,6 +1,8 @@
 package com.lincomengineering.lincomroip;
 
 
+import java.lang.ref.WeakReference;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,7 +23,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,7 +31,7 @@ import com.lincomengineering.lincomroip.LCRService.LocalBinder;
 
 public class MainActivity extends Activity {
 	public native void setEnv();
-	private ImageButton btnPtt;
+	private Button btnPtt;
 	private SeekBar seekSql;
 	private TextView txtContact, txtChan;
 	private Button btnConnect, btnWatt;
@@ -38,7 +39,7 @@ public class MainActivity extends Activity {
 	LCRService mService;
     boolean mBound = false;
     private Context context;
-    static Handler h;
+    private CustomHandler h;
     private int connected = 0;
     SharedPreferences preferences;
 
@@ -50,30 +51,30 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this;
-        setContentView(R.layout.activity_main);
-        txtContact = (TextView) findViewById(R.id.txtContact);
-        txtContact.setText("100@78.90.112.221");
+        setContentView(R.layout.activity_main2);
+        //txtContact = (TextView) findViewById(R.id.txtContact);
+        //txtContact.setText("100@78.90.112.221");
         txtChan = (TextView) findViewById(R.id.textChan);
         btnConnect = (Button) findViewById(R.id.btnConnect);
-        btnWatt = (Button) findViewById(R.id.btnWatt);
-        btnWatt.setText("--W");
-        btnPtt = (ImageButton) findViewById(R.id.btnPtt);
-        //h = new CallbackHandler(context, txtChan, btnWatt);
-        h = new Handler() {
-        	           public void handleMessage(Message msg) {
-        	             int chan;
-        	               Bundle b = msg.getData();
-        	               String status = b.getString("callback_string");
-        	               //Toast.makeText(context, status.substring(0,8), Toast.LENGTH_SHORT).show();
-        	               if (status.length() > 14) {
-        	                 if (((String)status.substring(0,8)).equals("Channel:")) {
-        	                   chan = Integer.parseInt(status.substring(8, 11))-233;
-        	                   txtChan.setText(String.format("%02d", chan));
-        	                   btnWatt.setText(String.format("%sW", status.substring(12, 14)));
-        	               } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
-        	               } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
-        	           }
-        	       };
+        //btnWatt = (Button) findViewById(R.id.btnWatt);
+        //btnWatt.setText("--W");
+        btnPtt = (Button) findViewById(R.id.btnPtt);
+        h = new CustomHandler(this);
+//        h = new Handler() {
+//        	           public void handleMessage(Message msg) {
+//        	             int chan;
+//        	               Bundle b = msg.getData();
+//        	               String status = b.getString("callback_string");
+//        	               //Toast.makeText(context, status.substring(0,8), Toast.LENGTH_SHORT).show();
+//        	               if (status.length() > 14) {
+//        	                 if (((String)status.substring(0,8)).equals("Channel:")) {
+//        	                   chan = Integer.parseInt(status.substring(8, 11))-233;
+//        	                   txtChan.setText(String.format("%02d", chan));
+//        	                   btnWatt.setText(String.format("%sW", status.substring(12, 14)));
+//        	               } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
+//        	               } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
+//        	           }
+//        	       };
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         btnPtt.setOnTouchListener(new OnTouchListener() {
         	
@@ -303,6 +304,10 @@ public class MainActivity extends Activity {
         }
     };
     
+    private void showToast(String txt) {
+    	Toast.makeText(context, txt, Toast.LENGTH_SHORT).show();
+    }
+    
     static class CallbackHandler extends Handler {
     	TextView ctxtChan; 
     	Button cbtnWatt;
@@ -315,7 +320,7 @@ public class MainActivity extends Activity {
     	
     	@Override
     	public void handleMessage(Message msg) {
-       	 int chan;
+       	 //int chan;
             Bundle b = msg.getData();
             String status = b.getString("callback_string");
             Toast.makeText(ccontext, status.substring(0,8), Toast.LENGTH_SHORT).show();
@@ -324,6 +329,27 @@ public class MainActivity extends Activity {
 //	             ctxtChan.setText(String.format("%02d", chan));
 //	             cbtnWatt.setText(String.format("%sW", status.substring(12, 14)));
 //       	 } else Toast.makeText(ccontext, status, Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    static class CustomHandler extends Handler
+    {
+        WeakReference<MainActivity> mActivity;
+
+        CustomHandler(MainActivity aFragment) 
+        {
+            mActivity = new WeakReference<MainActivity>(aFragment);
+        }
+        @Override
+        public void handleMessage(Message msg) 
+        {
+            MainActivity theActivity = mActivity.get();
+            //theActivity.updateUI();  
+            //int chan;
+            Bundle b = msg.getData();
+            String status = b.getString("callback_string");
+            //Toast.makeText(ccontext, status.substring(0,8), Toast.LENGTH_SHORT).show();
+            theActivity.showToast(status.substring(0,8));
         }
     }
 }

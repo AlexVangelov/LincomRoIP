@@ -7,10 +7,15 @@
   <string name="empty_chan">--</string>
   <string name="watt_25">25W</string>
   <string name="watt_1">1W</string>
-  <string name="squelch">Squelch</string>
+  <string name="squelch">SQUELCH</string>
 	<string name="chan_up">Channel Up</string>
 	<string name="chan_down">Channel Down</string>
 	<string name="speak_now">Speak Now</string>
 	<string name="settings">Settings</string>
 	<string name="exit">Exit</string>
+	<string name="dots">---</string>
+	<string name="channel">C\nH\nA\nN\nN\nE\nL</string>
+	<string name="lincom">Lincom Engineering Ltd.</string>
+	<string name="radio_over_ip">Radio over IP</string>
+	<string name="ptt">PTT</string>
 </resources>
