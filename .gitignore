@@ -31,6 +31,7 @@ svn-commit*.tmp
 
 # generated files
 gen/
+obj/
 bin/res/
 bin/dexedLibs/
 *.ap_
