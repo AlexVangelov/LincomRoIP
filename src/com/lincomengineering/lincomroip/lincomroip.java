@@ -17,8 +17,8 @@ public class lincomroip {
     return lincomroipJNI.destroyLincomRoIP();
   }
 
-  public static int connectLincomRoIP(String s) {
-    return lincomroipJNI.connectLincomRoIP(s);
+  public static int connectLincomRoIP(int acc_id, String s) {
+    return lincomroipJNI.connectLincomRoIP(acc_id, s);
   }
 
   public static int disconnectLincomRoIP() {

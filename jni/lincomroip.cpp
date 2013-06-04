@@ -72,6 +72,14 @@ static void on_pager(pjsua_call_id call_id, const pj_str_t *from,
    if (strncmp (text->ptr,"ICOM:",5) == 0) callback_handler(text->ptr+5); //pager_cb(text->ptr+5);
 }
 
+static void on_reg_state(pjsua_acc_id acc_id) {
+   pjsua_acc_info ai;
+   pjsua_acc_get_info(acc_id, &ai);
+   PJ_LOG(3,(THIS_FILE,"REG STATE CHANGED %s", ai.status_text.ptr));
+
+}
+
+
 void printlog(const char *format, ...)
 {
     va_list arg;
@@ -114,6 +122,7 @@ int initLincomRoIP(char *registrar, char *user, char *passwd) {
       cfg.cb.on_call_media_state = &on_call_media_state;
       cfg.cb.on_call_state = &on_call_state;
       cfg.cb.on_pager = &on_pager;
+      cfg.cb.on_reg_state = &on_reg_state;
 
       pjsua_logging_config_default(&log_cfg);
       log_cfg.console_level = 4;
@@ -186,14 +195,14 @@ int initLincomRoIP(char *registrar, char *user, char *passwd) {
 			 return -1;  
 		}
 	}
-   return 0;
+   return acc_id;
 }
 
-int connectLincomRoIP(char *s) {
+int connectLincomRoIP(pjsua_acc_id acc_id, char *s) {
    pj_status_t status;
    pjsua_call_id call_id = -1;
    pj_str_t uri = pj_str(s);
-   pjsua_call_make_call(pjsua_acc_get_default(), &uri, 0, NULL, NULL, &call_id);
+   pjsua_call_make_call(acc_id, &uri, 0, NULL, NULL, &call_id);
    return call_id;
 }
 
