@@ -14,4 +14,3 @@ int destroyLincomRoIP();
 int connectLincomRoIP(char *s);
 int disconnectLincomRoIP();
 int sendmsgLincomRoIP(int call_id, char *s);
-

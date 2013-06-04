@@ -5,13 +5,10 @@ import java.lang.ref.WeakReference;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
@@ -27,8 +24,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.lincomengineering.lincomroip.LCRService.LocalBinder;
-
 public class MainActivity extends Activity {
 	public native void setEnv();
 	private Button btnPtt;
@@ -36,7 +31,6 @@ public class MainActivity extends Activity {
 	private TextView txtContact, txtChan;
 	private Button btnConnect, btnWatt;
 	private int current_call_id = -1;
-	LCRService mService;
     boolean mBound = false;
     private Context context;
     private CustomHandler h;
@@ -121,30 +115,11 @@ public class MainActivity extends Activity {
     	        return false;
     	    }
         });
-        /* Load native library */
-//        try {
-//        	//System.loadLibrary("stlport_shared");
-//        	System.loadLibrary("lincomroip");
-//        	Log.d("LincomRoIP","Library load OK\n");
-//        	Toast.makeText(getApplicationContext(), "Library load OK", Toast.LENGTH_SHORT).show();
-//        } catch (UnsatisfiedLinkError e) {
-//        	Log.d("LincomRoIP",e.getMessage());
-//        	this.finish();
-//        	return;
-//        }
-        //setEnv();
-        //lincomroip.initLincomRoIP();
-
-        //lincomroip.setToastCallback((SWIGTYPE_p_void)toastCallback);
     }
     
     @Override
     protected void onStart() {
         super.onStart();
-        // Bind to LocalService
-//        Intent intent = new Intent(this, LCRService.class);
-//        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-        //setEnv();
         lincomroip.initLincomRoIP(
         		preferences.getString("sip_server", "78.90.112.221"),
         		preferences.getString("name", ""),
@@ -155,18 +130,12 @@ public class MainActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        // Unbind from the service
-//        if (mBound) {
-//            unbindService(mConnection);
-//            mBound = false;
-//        }
         lincomroip.destroyLincomRoIP();
     }
     
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //lincomroip.destroyLincomRoIP();
     }
     
     @Override
@@ -283,26 +252,6 @@ public class MainActivity extends Activity {
     		Log.e("LincomRoIP","eeeerrrorrr");
     	}
     }
-
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            LocalBinder binder = (LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            //mService.retrieveClockHS();
-            //ClockHSActivity.this.loadWeb();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-        }
-    };
     
     private void showToast(String txt) {
     	Toast.makeText(context, txt, Toast.LENGTH_SHORT).show();

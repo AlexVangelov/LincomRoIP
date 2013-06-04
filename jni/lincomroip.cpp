@@ -37,7 +37,7 @@ static void on_call_state(pjsua_call_id call_id, pjsip_event *e)
     PJ_LOG(3,(THIS_FILE, "Call %d state=%.*s", call_id,
 			 (int)ci.state_text.slen,
 			 ci.state_text.ptr));
-		if (ci.state == PJSIP_INV_STATE_CONFIRMED) sendmsgLincomRoIP(call_id,"?");
+		if (ci.state == PJSIP_INV_STATE_CONFIRMED) sendmsgLincomRoIP(call_id,(char *)"?");
 }
 
 /* Callback called by the library when call's media state has changed */
@@ -119,9 +119,9 @@ int initLincomRoIP(char *registrar, char *user, char *passwd) {
       log_cfg.console_level = 4;
       log_cfg.cb = &showLog;
 
-			cfg.stun_srv_cnt = 2;
-			cfg.stun_srv[0] = pj_str("stun.pjsip.org");
-      cfg.stun_srv[1] = pj_str("stun.voipbuster.com");
+			//cfg.stun_srv_cnt = 2;
+			//cfg.stun_srv[0] = pj_str((char *)"stun.pjsip.org");
+         //cfg.stun_srv[1] = pj_str((char *)"stun.voipbuster.com");
 
 			pjsua_media_config_default(&media_cfg);
 			media_cfg.ec_tail_len = 0;
@@ -174,8 +174,8 @@ int initLincomRoIP(char *registrar, char *user, char *passwd) {
 		pj_ansi_sprintf(reg_uri, "sip:%s",registrar);
 		cfg.reg_uri = pj_str(reg_uri);
 		cfg.cred_count = 1;
-		cfg.cred_info[0].realm = pj_str("*");
-		cfg.cred_info[0].scheme = pj_str("digest");
+		cfg.cred_info[0].realm = pj_str((char *)"*");
+		cfg.cred_info[0].scheme = pj_str((char *)"digest");
 		cfg.cred_info[0].username = pj_str(user);
 		cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
 		cfg.cred_info[0].data = pj_str(passwd);
@@ -269,18 +269,7 @@ static void callback_handler(char *s) {
 	}
 	isAttached = true;
 	}
-	/* Construct a Java string */
 	jstring js = env->NewStringUTF(s);
-	//initClassHelper(env, kInterfacePath, &gInterfaceObject);
-	//jclass interfaceClass = env->GetObjectClass(gInterfaceObject);
-	//jclass interfaceClass = env->FindClass(kInterfacePath);
-	//if(!interfaceClass) {
-	//printlog("callback_handler: failed to get class reference");
-	//if(isAttached) gJavaVM->DetachCurrentThread();
-	//return;
-	//}
-	/* Find the callBack method ID */
-	//jmethodID method = env->GetStaticMethodID(
 	jmethodID method = env->GetMethodID(
 	interfaceClass, "callBack", "(Ljava/lang/String;)V");
 	if(!method) {
