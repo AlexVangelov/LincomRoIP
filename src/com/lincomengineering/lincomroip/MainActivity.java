@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -31,17 +32,20 @@ public class MainActivity extends Activity {
 	private TextView txtContact, txtChan;
 	private Button btnConnect, btnWatt;
 	private int current_call_id = -1;
+	private int current_acc_id = -1;
     boolean mBound = false;
     private Context context;
-    private CustomHandler h;
+    private static Handler h;
     private int connected = 0;
+    private TextView txtInfo;
     SharedPreferences preferences;
 
     static {
         System.loadLibrary("lincomroip");
     }
     
-    @Override
+    @SuppressLint("HandlerLeak")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this;
@@ -50,25 +54,31 @@ public class MainActivity extends Activity {
         //txtContact.setText("100@78.90.112.221");
         txtChan = (TextView) findViewById(R.id.textChan);
         btnConnect = (Button) findViewById(R.id.btnConnect);
+        txtInfo = (TextView) findViewById(R.id.textInfo);
         //btnWatt = (Button) findViewById(R.id.btnWatt);
         //btnWatt.setText("--W");
         btnPtt = (Button) findViewById(R.id.btnPtt);
-        h = new CustomHandler(this);
-//        h = new Handler() {
-//        	           public void handleMessage(Message msg) {
-//        	             int chan;
-//        	               Bundle b = msg.getData();
-//        	               String status = b.getString("callback_string");
-//        	               //Toast.makeText(context, status.substring(0,8), Toast.LENGTH_SHORT).show();
-//        	               if (status.length() > 14) {
-//        	                 if (((String)status.substring(0,8)).equals("Channel:")) {
-//        	                   chan = Integer.parseInt(status.substring(8, 11))-233;
-//        	                   txtChan.setText(String.format("%02d", chan));
-//        	                   btnWatt.setText(String.format("%sW", status.substring(12, 14)));
-//        	               } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
-//        	               } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
-//        	           }
-//        	       };
+        //h = new CustomHandler(this);
+        h = new Handler() {
+        	           public void handleMessage(Message msg) {
+        	               Bundle b = msg.getData();
+        	               String status = b.getString("callback_string");
+        	               int type = b.getInt("callback_type");
+        	               if (type > 0) {
+        	               //Toast.makeText(context, status.substring(0,8), Toast.LENGTH_SHORT).show();
+        	            	   int chan;
+	        	               if (status.length() > 14) {
+	        	                 if (((String)status.substring(0,8)).equals("Channel:")) {
+	        	                   chan = Integer.parseInt(status.substring(8, 11))-233;
+	        	                   txtChan.setText(String.format("%02d", chan));
+	        	                   btnWatt.setText(String.format("%sW", status.substring(12, 14)));
+	        	                 } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
+	        	               } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
+        	               } else {
+        	            	   txtInfo.setText(status);
+        	               }
+        	           }
+        	       };
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         btnPtt.setOnTouchListener(new OnTouchListener() {
         	
@@ -120,7 +130,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        lincomroip.initLincomRoIP(
+        current_acc_id = lincomroip.initLincomRoIP(
         		preferences.getString("sip_server", "78.90.112.221"),
         		preferences.getString("name", ""),
         		preferences.getString("password", "")
@@ -181,14 +191,14 @@ public class MainActivity extends Activity {
     
     public void doConnect(View v) {
     	if (connected == 0) {
-	    	String contact = String.format("sip:%s", txtContact.getText().toString());
-	    	current_call_id = lincomroip.connectLincomRoIP(contact);
-	    	btnConnect.setText("Disconnect");
+	    	//String contact = String.format("sip:%s", txtContact.getText().toString());
+	    	current_call_id = lincomroip.connectLincomRoIP(current_acc_id, "sip:222@78.90.112.221");
+	    	//btnConnect.setText("Disconnect");
 	    	connected = 1;
     	} else {
     		lincomroip.disconnectLincomRoIP();
-    		btnConnect.setText("Connect");
-    		btnWatt.setText("--W");
+    		//btnConnect.setText("Connect");
+    		//btnWatt.setText("--W");
     		txtChan.setText("--");
     		connected = 0;
     	}
@@ -239,11 +249,12 @@ public class MainActivity extends Activity {
     	lincomroip.sendmsgLincomRoIP(current_call_id, s);
     }
 
-    public void callBack(String s) {
+    public static void callBack(int type, String s) {
     	Log.d("LincomRoIP",s);
     	try {
     		Bundle b = new Bundle();
             b.putString("callback_string", s);
+            b.putInt("callback_type", type);
             Message m = Message.obtain();
             m.setData(b);
             m.setTarget(h);
@@ -261,10 +272,12 @@ public class MainActivity extends Activity {
     	TextView ctxtChan; 
     	Button cbtnWatt;
     	Context ccontext;
-    	CallbackHandler(Context ctxt, TextView chan, Button watt) {
+    	TextView ctxtInfo;
+    	CallbackHandler(Context ctxt, TextView info, TextView chan, Button watt) {
     		ccontext = ctxt;
     		ctxtChan = chan;
     		cbtnWatt = watt;
+    		ctxtInfo = info;
         }
     	
     	@Override
@@ -272,7 +285,13 @@ public class MainActivity extends Activity {
        	 //int chan;
             Bundle b = msg.getData();
             String status = b.getString("callback_string");
-            Toast.makeText(ccontext, status.substring(0,8), Toast.LENGTH_SHORT).show();
+            int type = b.getInt("callback_type");
+            if (type > 0) {
+            	Toast.makeText(ccontext, status.substring(0,8), Toast.LENGTH_SHORT).show();
+            } else {
+            	ctxtInfo.setText(status);
+            }
+            Log.d("LincomRoIP handler message",status);
 //            if (((String)status.substring(0,8)).equals("Channel:")) {
 //	             chan = Integer.parseInt(status.substring(8, 11))-233;
 //	             ctxtChan.setText(String.format("%02d", chan));

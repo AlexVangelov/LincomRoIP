@@ -4,7 +4,7 @@
 
 #define THIS_FILE	"LincomRoIP"
 
-static void callback_handler(char *s);
+static void callback_handler(int type, char *s);
 int sendmsgLincomRoIP(int call_id, char *s);
 
 /* Callback called by the library upon receiving incoming call */
@@ -69,13 +69,16 @@ static void on_pager(pjsua_call_id call_id, const pj_str_t *from,
               (int)text->slen, text->ptr,
               (int)mime_type->slen, mime_type->ptr)); 
 
-   if (strncmp (text->ptr,"ICOM:",5) == 0) callback_handler(text->ptr+5); //pager_cb(text->ptr+5);
+   if (strncmp (text->ptr,"ICOM:",5) == 0) callback_handler(1, text->ptr+5); //pager_cb(text->ptr+5);
 }
 
 static void on_reg_state(pjsua_acc_id acc_id) {
+   char amsg[80];
    pjsua_acc_info ai;
    pjsua_acc_get_info(acc_id, &ai);
    PJ_LOG(3,(THIS_FILE,"REG STATE CHANGED %s", ai.status_text.ptr));
+   pj_ansi_sprintf(amsg, "Registration status: %s (%d)", ai.status_text.ptr, ai.status);
+   callback_handler(-1, amsg);
 
 }
 
@@ -224,7 +227,7 @@ int destroyLincomRoIP() {
 static JavaVM *gJavaVM;
 static jobject gInterfaceObject, gDataObject;
 const char *kInterfacePath = "com/lincomengineering/lincomroip/MainActivity";
-static jclass interfaceClass;
+//static jclass interfaceClass;
 
 void initClassHelper(JNIEnv *env, const char *path, jobject *objptr) {
 	jclass cls = env->FindClass(path);
@@ -250,42 +253,51 @@ extern "C" jint JNI_OnLoad(JavaVM* vm, void* reserved)
 	JNIEnv *env;
 	gJavaVM = vm;
 	printlog("JNI_OnLoad called");
-	if (vm->GetEnv((void**) &env, JNI_VERSION_1_4) != JNI_OK) {
+	if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
 		printlog("Failed to get the environment using GetEnv()");
 		return -1;
 	}
-	interfaceClass = env->FindClass(kInterfacePath);
+	jclass interfaceClass = env->FindClass(kInterfacePath);
 	if(!interfaceClass) {
 		printlog("callback_handler: failed to get class reference");
 		return -1;
 	}
-	return JNI_VERSION_1_4;
+   initClassHelper(env, kInterfacePath, &gInterfaceObject);
+	return JNI_VERSION_1_6;
 }
 
-static void callback_handler(char *s) {
+static void callback_handler(int type, char *s) {
 	int status;
 	JNIEnv *env;
 	bool isAttached = false;
-	status = gJavaVM->GetEnv((void **) &env, JNI_VERSION_1_4);
+	status = gJavaVM->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
 	if(status < 0) {
-	printlog("callback_handler: failed to get JNI environment, "
-	"assuming native thread");
-	status = gJavaVM->AttachCurrentThread(&env, NULL);
-	if(status < 0) {
-	printlog("callback_handler: failed to attach "
-	"current thread");
-	return;
+	   printlog("callback_handler: failed to get JNI environment, "
+	   "assuming native thread");
+	   status = gJavaVM->AttachCurrentThread(&env, NULL);
+	   if(status < 0) {
+	      printlog("callback_handler: failed to attach "
+	      "current thread");
+	      return;
+	   }
+	   isAttached = true;
 	}
-	isAttached = true;
-	}
+   printlog("callback_handle continue");
 	jstring js = env->NewStringUTF(s);
-	jmethodID method = env->GetMethodID(
-	interfaceClass, "callBack", "(Ljava/lang/String;)V");
+   jclass interfaceClass = env->GetObjectClass(gInterfaceObject);
+   if(!interfaceClass) {
+      printlog("callback_handler: failed to get class reference");
+      if(isAttached) gJavaVM->DetachCurrentThread();
+      return;
+   }
+	jmethodID method = env->GetStaticMethodID(
+	interfaceClass, "callBack", "(ILjava/lang/String;)V");
 	if(!method) {
-	printlog("callback_handler: failed to get method ID");
-	if(isAttached) gJavaVM->DetachCurrentThread();
-	return;
+	   printlog("callback_handler: failed to get method ID");
+	   if(isAttached) gJavaVM->DetachCurrentThread();
+	   return;
 	}
-	env->CallStaticVoidMethod(interfaceClass, method, js);
+   printlog("callback_handler: get method ID OK!");
+	env->CallStaticVoidMethod(interfaceClass, method, type, js);
 	if(isAttached) gJavaVM->DetachCurrentThread();
 }
