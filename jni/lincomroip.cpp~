@@ -217,7 +217,7 @@ int disconnectLincomRoIP() {
 
 int sendmsgLincomRoIP(int call_id, char *s) {
 	 char amsg[80];
-	 pj_ansi_sprintf(amsg, "VCMD:%s\r",s);
+	 pj_ansi_sprintf(amsg, "VCMD:%s",s);
    pj_str_t msg = pj_str(amsg);
 		PJ_LOG(3,(THIS_FILE, amsg));
    return pjsua_call_send_im( call_id, NULL, &msg, NULL, NULL);

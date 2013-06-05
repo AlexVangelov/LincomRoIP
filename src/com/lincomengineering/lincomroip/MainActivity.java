@@ -29,8 +29,8 @@ public class MainActivity extends Activity {
 	public native void setEnv();
 	private Button btnPtt;
 	private SeekBar seekSql;
-	private TextView txtContact, txtChan;
-	private Button btnConnect, btnWatt;
+	private TextView txtChan;
+	private Button btnConnect;
 	private int current_call_id = -1;
 	private int current_acc_id = -1;
     boolean mBound = false;
@@ -71,9 +71,9 @@ public class MainActivity extends Activity {
 	        	                 if (((String)status.substring(0,8)).equals("Channel:")) {
 	        	                   chan = Integer.parseInt(status.substring(8, 11))-233;
 	        	                   txtChan.setText(String.format("%02d", chan));
-	        	                   btnWatt.setText(String.format("%sW", status.substring(12, 14)));
-	        	                 } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
-	        	               } else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
+	        	                   //btnWatt.setText(String.format("%sW", status.substring(12, 14)));
+	        	                 } //else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
+	        	               } //else Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
         	               } else {
         	            	   txtInfo.setText(status);
         	               }
@@ -88,7 +88,7 @@ public class MainActivity extends Activity {
     		        case MotionEvent.ACTION_DOWN: 
     		        	if (current_call_id != -1) {
     		        		//lincomroip.sendmsgLincomRoIP(current_call_id, "J1");
-    		        		SendLinCmd("J1");
+    		        		SendLinCmd("J1", false);
     		        	} else {
     		        		Toast.makeText(getApplicationContext(), "No active connection!", Toast.LENGTH_SHORT).show();
     		        	}
@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
     		        case MotionEvent.ACTION_UP: 
     		        	if (current_call_id != -1) {
     		        		//lincomroip.sendmsgLincomRoIP(current_call_id, "J0");
-    		        		SendLinCmd("J0");
+    		        		SendLinCmd("J0", false);
     		        	} else {
     		        		Toast.makeText(getApplicationContext(), "No active connection!", Toast.LENGTH_SHORT).show();
     		        	}
@@ -116,7 +116,7 @@ public class MainActivity extends Activity {
     		        	if (current_call_id != -1) {
     		        		String.format("S%X", (progress*15)/100);
     		        		//lincomroip.sendmsgLincomRoIP(current_call_id, String.format("S%X", (progress*15)/100));
-    		        		SendLinCmd(String.format("S%X", (progress*15)/100));
+    		        		SendLinCmd(String.format("S%X", (progress*15)/100), false);
     		        	} else {
     		        		Toast.makeText(getApplicationContext(), "No active connection!", Toast.LENGTH_SHORT).show();
     		        	}
@@ -192,7 +192,7 @@ public class MainActivity extends Activity {
     public void doConnect(View v) {
     	if (connected == 0) {
 	    	//String contact = String.format("sip:%s", txtContact.getText().toString());
-	    	current_call_id = lincomroip.connectLincomRoIP(current_acc_id, "sip:222@78.90.112.221");
+	    	current_call_id = lincomroip.connectLincomRoIP(current_acc_id, "sip:100@78.90.112.221");
 	    	//btnConnect.setText("Disconnect");
 	    	connected = 1;
     	} else {
@@ -207,7 +207,7 @@ public class MainActivity extends Activity {
     public void chanUp(View v) {
     	if (current_call_id != -1) {
     		//lincomroip.sendmsgLincomRoIP(current_call_id, "1");
-    		SendLinCmd("1");
+    		SendLinCmd("1", true);
     	} else {
     		Toast.makeText(getApplicationContext(), "No active connection!", Toast.LENGTH_SHORT).show();
     	}
@@ -216,7 +216,7 @@ public class MainActivity extends Activity {
     public void chanDown(View v) {
     	if (current_call_id != -1) {
     		//lincomroip.sendmsgLincomRoIP(current_call_id, "5");
-    		SendLinCmd("5");
+    		SendLinCmd("5", true);
     	} else {
     		Toast.makeText(getApplicationContext(), "No active connection!", Toast.LENGTH_SHORT).show();
     	}
@@ -243,9 +243,9 @@ public class MainActivity extends Activity {
     	Log.d("LincomRoIP","pagerCallback\n");
     }
 
-    public void SendLinCmd(String s) {
-    	btnWatt.setText("--W");
-		txtChan.setText("--");
+    public void SendLinCmd(String s, Boolean clear) {
+    	//btnWatt.setText("--W");
+		if (clear) txtChan.setText("--");
     	lincomroip.sendmsgLincomRoIP(current_call_id, s);
     }
 

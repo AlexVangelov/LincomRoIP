@@ -1,5 +1,5 @@
 # $Id$
-PJPROJECT_DIR := /home/alex/pjandroid/android2
+PJPROJECT_DIR := /home/vangelov/pjandroid/android2
 
 LOCAL_PATH	:= $(call my-dir)
 include $(CLEAR_VARS)
